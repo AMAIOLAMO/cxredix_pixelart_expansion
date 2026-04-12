@@ -75,7 +75,6 @@ local glimmer_appends = {
     make_glimmer_material("Ambrosia", "magic_liquid_protection_all"),
     make_glimmer_material("Hastium", "magic_liquid_faster_levitation_and_movement"),
     make_glimmer_material("Chaotic Poly", "magic_liquid_random_polymorph"),
-    make_glimmer_material("Diminution", "magic_liquid_weakness"),
     make_glimmer_material("Australium", "static_magic_material"),
     make_glimmer_material("Deathium", "just_death"),
     make_glimmer_material("Pus", "pus"),

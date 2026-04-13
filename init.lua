@@ -94,7 +94,9 @@ if load_imgui ~= nil then
     function deserialize_to_action_names(raw_str)
         local action_names = {}
 
-        for str in raw_str:gmatch("([^\n,\n]+)") do
+        -- ignore newlines, spaces, and commas. That would mean Spaces inbetween spell id's are NOT
+        -- allowed: TEST_ABC cannot be TEST _ABC
+        for str in raw_str:gmatch("([^\n ,]+)") do
             table.insert(action_names, str)
         end
 
@@ -133,6 +135,10 @@ if load_imgui ~= nil then
         local action_names = deserialize_to_action_names(raw_str)
 
         for idx, action_name in ipairs(action_names) do
+            if action_name == nil or action_name == '' then
+                goto continue
+            end
+
             local action_entity = CreateItemActionEntity(action_name, 0, 0)
             EntityAddChild(wand_id, action_entity)
 
@@ -141,13 +147,17 @@ if load_imgui ~= nil then
             ComponentSetValue2(item_comp, "inventory_slot", idx - 1, item_y_pos)
 
             EntitySetComponentsWithTagEnabled(action_entity, "enabled_in_world", false)
+
+            -- This does not work, tha game seems to load the particle emitter differently.
+            -- local particle_emitter = EntityGetFirstComponentIncludingDisabled(action_entity, "ParticleEmitterComponent")
+            -- EntityRemoveComponent(action_entity, particle_emitter)
+
+            ::continue::
         end
 
         wand_set_deck_cap(wand_id, #action_names)
 
         all_wand_force_refresh()
-
-        should_clear_next_frame = true
     end
 
     local prev_wand_start_load_time_sec = -1
@@ -168,7 +178,6 @@ if load_imgui ~= nil then
         end
 
         if ModSettingGet("cxredix_pixelart_expansion.enable_wand_loader") and imgui.Begin("Wand Loader") then
-
             imgui.Text("Put your wand string below")
             _, wand_raw_text = imgui.InputText("", wand_raw_text)
 
@@ -178,7 +187,25 @@ if load_imgui ~= nil then
                 if held_wand ~= nil then
                     GamePrint("[Pixelart wand loader] Loading held wand")
                     prev_wand_start_load_time_sec = GameGetRealWorldTimeSinceStarted()
+
+                    wand_clear_all_actions(held_wand)
                     wand_load_action_str(held_wand, wand_raw_text)
+                    should_clear_next_frame = true
+                end
+            end
+
+            if wand_raw_text ~= '' and imgui.Button("Load on held wand") then
+                local held_wand = get_held_wand()
+
+                if held_wand ~= nil then
+                    GamePrint("[Pixelart wand loader] Loading held wand")
+                    prev_wand_start_load_time_sec = GameGetRealWorldTimeSinceStarted()
+                    
+                    wand_clear_all_actions(held_wand)
+                    wand_load_action_str(held_wand, wand_raw_text)
+                    prev_time_load_sec = GameGetRealWorldTimeSinceStarted() - prev_wand_start_load_time_sec
+
+                    GamePrint("[Pixelart wand loader] Wand Load complete, it took: " .. tostring(prev_time_load_sec))
                 end
             end
 

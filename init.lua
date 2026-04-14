@@ -1,7 +1,11 @@
 dofile_once("data/scripts/lib/coroutines.lua")
 dofile_once("data/scripts/lib/utilities.lua")
 
+
 local root_path = "mods/cxredix_pixelart_expansion/"
+
+local cx_deck_sync = dofile_once(root_path .. "cx_deck_sync.lua")
+dofile_once(root_path .. "cx_action_parse_utils.lua")
 
 -- @module wand_utils
 dofile_once(root_path .. "wand_utils.lua")
@@ -30,7 +34,8 @@ end
 ModLuaFileAppend("data/scripts/gun/gun.lua", root_path .. "gun_deck_handler.lua")
 
 -- clear any previous un-synced actions
-GlobalsSetValue("cx_pxa_sync_deck_actions", "")
+cx_deck_sync.consume_sync()
+cx_deck_sync.clear_sync_complete_flag()
 
 local player
 
@@ -61,6 +66,12 @@ if load_imgui ~= nil then
     function OnWorldPostUpdate()
         imgui.SetNextWindowSize(800, 400, imgui.Cond.Once)
 
+        if cx_deck_sync.is_sync_complete_flag_marked() then
+            prev_time_load_sec = GameGetRealWorldTimeSinceStarted() - prev_wand_start_load_time_sec
+            
+            cx_deck_sync.clear_sync_complete_flag()
+        end
+
         if should_clear_next_frame == true then
             wand_clear_all_actions(get_held_wand_id(get_player()))
 
@@ -84,7 +95,15 @@ if load_imgui ~= nil then
             if actions_raw_str ~= '' and imgui.Button("Direct sync to wand") then
                 GamePrint("Trying to sync")
 
-                GlobalsSetValue("cx_pxa_sync_deck_actions", actions_raw_str)
+                prev_wand_start_load_time_sec = GameGetRealWorldTimeSinceStarted()
+                cx_deck_sync.set_sync_actions(actions_raw_str)
+
+                -- TODO: instead of deserializing it, we simply let the wand parse utils to be able to parse
+                -- count. counting the number of , then returning the amount of spells :) + 1 (there is an issue)
+                -- where it might assume ",," as 1 spell, but that's trivial for now
+                local action_ids = cx_deserialize_to_action_ids(actions_raw_str)
+
+                prev_action_count = #action_ids
 
                 GamePrint("Sync Notified, forcing wand refresh...")
 

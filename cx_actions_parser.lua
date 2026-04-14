@@ -1,4 +1,4 @@
-function cx_deserialize_to_action_names(raw_str)
+function cx_deserialize_to_action_ids(raw_str)
     local action_names = {}
 
     -- ignore newlines, spaces, and commas. That would mean Spaces inbetween spell id's are NOT

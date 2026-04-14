@@ -29,6 +29,8 @@ end
 
 ModLuaFileAppend("data/scripts/gun/gun.lua", root_path .. "gun_deck_handler.lua")
 
+-- clear any previous un-synced actions
+GlobalsSetValue("cx_pxa_sync_deck_actions", "")
 
 local player
 
@@ -43,7 +45,6 @@ function get_player()
 
     return player
 end
-
 
 -- use imgui when the function exists
 local should_clear_next_frame = false
@@ -81,18 +82,19 @@ if load_imgui ~= nil then
             )
 
             if actions_raw_str ~= '' and imgui.Button("Direct sync to wand") then
-                local held_wand_id = get_held_wand_id(get_player())
-                
                 GamePrint("Trying to sync")
-                
+
                 GlobalsSetValue("cx_pxa_sync_deck_actions", actions_raw_str)
 
-                GamePrint("Sync Notified, requires manual change to any spell (just add or remove a spell)")
-                GamePrint("NOTE: DO NOT OPEN THE INVENTORY TO DO IT, it will crash lol.")
+                GamePrint("Sync Notified, forcing wand refresh...")
+
+                all_wand_force_refresh(get_player())
+
+                GamePrint("Wand refresh complete :)")
             end
 
             -- TODO: rewrite this so that it's much easier to read and modify
-            if actions_raw_str ~= '' and imgui.Button("Load on held wand and clear") then
+            if actions_raw_str ~= '' and imgui.Button("Load on held wand and clear(OBSOLETE)") then
                 local held_wand = get_held_wand_id(get_player())
 
                 if held_wand ~= nil then

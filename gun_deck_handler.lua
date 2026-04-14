@@ -4,6 +4,7 @@ dofile_once("mods/cxredix_pixelart_expansion/cx_actions_parser.lua")
 
 local cx_pxa_old_add_card_to_deck = _add_card_to_deck
 
+
 function _add_card_to_deck(action_id, inventoryitem_id, uses_remaining, is_identified)
     local raw_deck_str = GlobalsGetValue("cx_pxa_sync_deck_actions")
 
@@ -14,7 +15,7 @@ function _add_card_to_deck(action_id, inventoryitem_id, uses_remaining, is_ident
         GamePrint("deck cleared, loading...")
 
         local init_load_time_sec = GameGetRealWorldTimeSinceStarted()
-        local deck_action_ids = cx_deserialize_to_action_names(raw_deck_str)
+        local deck_action_ids = cx_deserialize_to_action_ids(raw_deck_str)
             
         -- can be easily optimized by manually remembering the spells instead of linear search each time,
         -- but that's for another day :)
@@ -28,6 +29,7 @@ function _add_card_to_deck(action_id, inventoryitem_id, uses_remaining, is_ident
         GamePrint("Load finished. Took: " .. tostring(load_time_total_sec) .. " seconds.")
 
         GlobalsSetValue("cx_pxa_sync_deck_actions", "")
+        GlobalsSetValue("cx_pxa_sync_complete_flag", "true")
 
         return
     end

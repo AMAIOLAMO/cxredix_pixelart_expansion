@@ -1,3 +1,6 @@
+dofile_once("data/scripts/lib/coroutines.lua")
+dofile_once("data/scripts/lib/utilities.lua")
+
 dofile_once("mods/cxredix_pixelart_expansion/cx_actions_parser.lua")
 
 function get_held_wand_id(player)
@@ -73,22 +76,28 @@ function all_wand_force_refresh(player)
     ComponentSetValue2(sec_inv, "mDontLogNextItemEquip", true)
 end
 
-function wand_load_action_str(wand_id, raw_str)
-    local action_names = cx_deserialize_to_action_names(raw_str)
+-- loads a new action to the specified index (index starts at 1)
+function wand_create_action_id_at(wand_id, action_id, idx)
+    local action_entity = CreateItemActionEntity(action_id, 0, 0)
+    EntityAddChild(wand_id, action_entity)
 
-    for idx, action_name in ipairs(action_names) do
-        if action_name == nil or action_name == '' then
+    local item_comp = EntityGetFirstComponentIncludingDisabled(action_entity, "ItemComponent")
+    local _, item_y_pos = ComponentGetValue2(item_comp, "inventory_slot")
+    -- zeroth it out idx - 1
+    ComponentSetValue2(item_comp, "inventory_slot", idx - 1, item_y_pos)
+
+    EntitySetComponentsWithTagEnabled(action_entity, "enabled_in_world", false)
+end
+
+function wand_load_action_str(wand_id, raw_str)
+    local action_ids = cx_deserialize_to_action_ids(raw_str)
+
+    for idx, action_id in ipairs(action_ids) do
+        if action_id == nil or action_id == '' then
             goto continue
         end
-
-        local action_entity = CreateItemActionEntity(action_name, 0, 0)
-        EntityAddChild(wand_id, action_entity)
-
-        local item_comp = EntityGetFirstComponentIncludingDisabled(action_entity, "ItemComponent")
-        local _, item_y_pos = ComponentGetValue2(item_comp, "inventory_slot")
-        ComponentSetValue2(item_comp, "inventory_slot", idx - 1, item_y_pos)
-
-        EntitySetComponentsWithTagEnabled(action_entity, "enabled_in_world", false)
+            
+        wand_create_action_id_at(wand_id, action_id, idx)
 
         -- This does not work, tha game seems to load the particle emitter differently.
         -- local particle_emitter = EntityGetFirstComponentIncludingDisabled(action_entity, "ParticleEmitterComponent")
@@ -97,6 +106,6 @@ function wand_load_action_str(wand_id, raw_str)
         ::continue::
     end
 
-    wand_set_deck_cap(wand_id, #action_names)
-    return #action_names
+    wand_set_deck_cap(wand_id, #action_ids)
+    return #action_ids
 end

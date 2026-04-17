@@ -11,6 +11,13 @@ mod_settings = {
         scope = MOD_SETTING_SCOPE_RUNTIME_RESTART,
     },
     {
+        id = "firebomb_remove_particles",
+        ui_name = "Firebomb remove particles",
+        ui_description = "Removes firebomb's fire ParticleEmitterComponent",
+        value_default = false,
+        scope = MOD_SETTING_SCOPE_RUNTIME_RESTART,
+    },
+    {
         id = "enable_wand_loader",
         ui_name = "Enable Wand Loader",
         ui_description = "REQUIRES NOITA DEAR IMGUI TO BE ABOVE THE CURRENT MOD, enables fast wand loader",

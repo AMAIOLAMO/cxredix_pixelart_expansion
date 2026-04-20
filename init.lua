@@ -200,26 +200,35 @@ if load_imgui ~= nil then
 
 
             -- METRICS --
-            
             local should_render_wand_timer = load_wand_timer:get_total_secs() > 0
             local should_render_action_count = prev_action_count > 0
 
             local should_render_metrics = should_render_action_count or should_render_action_count
 
             if should_render_metrics then
-                imgui.Text("Wand Load Metrics")
-            end
+                imgui.Separator()
 
-            if load_wand_timer:get_total_secs() > 0 then
-                imgui.Text(string.format(
-                    "\t -> Loaded in %.4f seconds", load_wand_timer:get_total_secs()
-                ))
-            end
+                if imgui.TreeNode("Wand Load Metrics") then
+                    
+                    -- Yes the if checks happens twice, but this is more structured :)
+                    if should_render_wand_timer then
+                        imgui.Bullet()
 
-            if prev_action_count > 0 then
-                imgui.Text(string.format(
-                    "\t -> Loaded %d spell actions", prev_action_count)
-                )
+                        imgui.Text(string.format(
+                            "Loaded in %.4f seconds", load_wand_timer:get_total_secs()
+                        ))
+                    end
+
+                    if should_render_action_count then
+                        imgui.Bullet()
+
+                        imgui.Text(string.format(
+                            "Loaded %d spell actions", prev_action_count)
+                        )
+                    end
+
+                    imgui.TreePop()
+                end
             end
 
             imgui.End()

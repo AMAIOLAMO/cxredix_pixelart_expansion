@@ -89,7 +89,7 @@ function wand_create_action_id_at(wand_id, action_id, idx)
     EntitySetComponentsWithTagEnabled(action_entity, "enabled_in_world", false)
 end
 
-function wand_load_action_str(wand_id, raw_str)
+function wand_append_action_str(wand_id, raw_str)
     local action_ids = cx_deserialize_to_action_ids(raw_str)
 
     for idx, action_id in ipairs(action_ids) do
@@ -108,4 +108,8 @@ function wand_load_action_str(wand_id, raw_str)
 
     wand_set_deck_cap(wand_id, #action_ids)
     return #action_ids
+end
+
+function wand_has_action(wand_id)
+    return wand_is_action_count_greater_than(wand_id, 0)
 end

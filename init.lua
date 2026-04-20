@@ -200,8 +200,6 @@ if load_imgui ~= nil then
             begin_held_wand_load(actions_input_str)
         end
 
-
-
         imgui.SameLine()
         if actions_input_str ~= '' and imgui_cautious_btn("Clear") then
             actions_input_str = ''

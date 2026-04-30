@@ -17,13 +17,6 @@ mod_settings = {
         value_default = false,
         scope = MOD_SETTING_SCOPE_RUNTIME_RESTART,
     },
-    {
-        id = "enable_wand_loader",
-        ui_name = "Enable Wand Loader",
-        ui_description = "REQUIRES NOITA DEAR IMGUI TO BE ABOVE THE CURRENT MOD, enables fast wand loader",
-        value_default = true,
-        scope = MOD_SETTING_SCOPE_RUNTIME,
-    }
 }
 
 function ModSettingsUpdate(init_scope)
